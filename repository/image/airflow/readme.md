@@ -1,1 +1,2 @@
 - docker login
+- docker build repository/image/airflow -t vsvale/airflow:2.5.1; docker push vsvale/airflow:2.5.1;
