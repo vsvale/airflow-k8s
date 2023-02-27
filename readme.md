@@ -50,3 +50,10 @@
 ### Install Argocd
     - helm pull argo/argo-cd --untar -d ./repository/argo-cd
     - helm upgrade --install -f https://raw.githubusercontent.com/vsvale/airflow-k8s/main/repository/argo-cd/values.yaml argocd argo/argo-cd --namespace cicd --debug --timeout 10m0s
+
+### Install Airflow
+    - helm pull apache-airflow/airflow --untar -d ./repository
+
+### Install Spark
+
+### Install MiniO
