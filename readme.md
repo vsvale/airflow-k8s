@@ -26,6 +26,12 @@
 ### Install K3d
     - curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
+### Install Kubectl
+    - sudo apt-get update
+    - sudo apt-get install -y ca-certificates curl apt-transport-https
+    - sudo curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    - sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
 ### Install Terraform
     - sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
     - sudo apt update && sudo apt install gpg
@@ -40,3 +46,7 @@
 
 ### Create namespaces
     - cd ./iac && terraform init && terraform plan && terraform apply -auto-approve && cd .. && kubectl get ns
+
+### Install Argocd
+    - helm pull argo/argo-cd --untar -d ./repository/argo-cd
+    - helm upgrade --install -f https://raw.githubusercontent.com/vsvale/airflow-k8s/main/repository/argo-cd/values.yaml argocd argo/argo-cd --namespace cicd --debug --timeout 10m0s
