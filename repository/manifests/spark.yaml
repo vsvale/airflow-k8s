@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: spark-operator
+  namespace: cicd
+spec:
+  project: default
+  source:
+    repoURL: "https://github.com/vsvale/airflow-k8s.git"
+    path: repository/spark-operator
+    targetRevision: HEAD
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: processing
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

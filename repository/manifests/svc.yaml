@@ -1,7 +1,8 @@
+
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: k8srepository
+  name: svcs
   namespace: cicd
   # Add a this finalizer ONLY if you want these to cascade delete.
   finalizers:
@@ -10,7 +11,7 @@ spec:
   project: default
   source:
     repoURL: "https://github.com/vsvale/airflow-k8s.git"
-    path: repository/manifests
+    path: repository/svc
     targetRevision: HEAD
     # directory
     directory:
@@ -24,3 +25,4 @@ spec:
       prune: true # Specifies if resources should be pruned during auto-syncing ( false by default ).
       selfHeal: true # Specifies if partial app sync should be executed when resources are changed only in target Kubernetes cluster and no git change detected ( false by default ).
       allowEmpty: false # Allows deleting all application resources during automatic syncing ( false by default ).
+  

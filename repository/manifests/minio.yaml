@@ -1,0 +1,22 @@
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minio-operator
+  namespace: cicd
+spec:
+  project: default
+  source:
+    repoURL: "https://github.com/vsvale/airflow-k8s.git"
+    path: repository/operator
+    targetRevision: HEAD
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: deepstorage
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
