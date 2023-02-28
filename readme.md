@@ -49,6 +49,9 @@
 
 ### Install Argocd
     - helm upgrade --install -f https://raw.githubusercontent.com/vsvale/airflow-k8s/main/repository/argo-cd/values.yaml argocd argo/argo-cd --namespace cicd --debug --timeout 10m0s
+    - watch kubectl get all -n cicd
+    - App of Apps: kubectl apply -f https://raw.githubusercontent.com/vsvale/airflow-k8s/main/repository/repository.yaml
+    - http://127.0.0.1:8081/argocd/login
 
 ### Install Airflow
 

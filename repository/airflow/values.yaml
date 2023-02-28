@@ -57,9 +57,9 @@ airflowVersion: "2.5.1"
 # Images
 images:
   airflow:
-    repository: ~
-    tag: ~
-    pullPolicy: IfNotPresent
+    repository: vsvale/airflow
+    tag: 2.5.1
+    pullPolicy: Always
   # To avoid images with user code, you can turn this to 'true' and
   # all the 'run-airflow-migrations' and 'wait-for-airflow-migrations' containers/jobs
   # will use the images from 'defaultAirflowRepository:defaultAirflowTag' values
@@ -234,7 +234,7 @@ rbac:
 
 # Airflow executor
 # One of: LocalExecutor, LocalKubernetesExecutor, CeleryExecutor, KubernetesExecutor, CeleryKubernetesExecutor
-executor: "CeleryExecutor"
+executor: "CeleryKubernetesExecutor"
 
 # If this is true and using LocalExecutor/KubernetesExecutor/CeleryKubernetesExecutor, the scheduler's
 # service account will have access to communicate with the api-server and launch pods.
@@ -821,7 +821,7 @@ createUserJob:
   topologySpreadConstraints: []
   # In case you need to disable the helm hooks that create the jobs after install.
   # Disable this if you are using ArgoCD for example
-  useHelmHooks: true
+  useHelmHooks: false
   applyCustomEnv: true
 
   env: []
@@ -891,7 +891,7 @@ migrateDatabaseJob:
   topologySpreadConstraints: []
   # In case you need to disable the helm hooks that create the jobs after install.
   # Disable this if you are using ArgoCD for example
-  useHelmHooks: true
+  useHelmHooks: false
   applyCustomEnv: true
 
 # Airflow webserver settings
@@ -1775,6 +1775,16 @@ config:
     worker_container_repository: '{{ .Values.images.airflow.repository | default .Values.defaultAirflowRepository }}'
     worker_container_tag: '{{ .Values.images.airflow.tag | default .Values.defaultAirflowTag }}'
     multi_namespace_mode: '{{ ternary "True" "False" .Values.multiNamespaceMode }}'
+  smtp:
+    smtp_host: 'smtp.mailtrap.io'
+    smtp_starttls: 'True'
+    smtp_ssl: 'False'
+    smtp_port: 2525
+    smtp_user: ''
+    smtp_password: ''
+    smtp_mail_from: viniciusdvale@gmail.com
+    smtp_timeout: 30
+    smtp_retry_limit: 5
 # yamllint enable rule:line-length
 
 # Whether Airflow can launch workers and/or pods in multiple namespaces
@@ -1822,20 +1832,20 @@ dags:
     ## optional subpath for dag volume mount
     subPath: ~
   gitSync:
-    enabled: false
+    enabled: true
 
     # git repo clone url
     # ssh example: git@github.com:apache/airflow.git
     # https example: https://github.com/apache/airflow.git
-    repo: https://github.com/apache/airflow.git
-    branch: v2-2-stable
+    repo: https://github.com/vsvale/airflow-k8s.git
+    branch: main
     rev: HEAD
     depth: 1
     # the number of consecutive failures allowed before aborting
     maxFailures: 0
     # subpath within the repo where dags are located
     # should be "" if dags are at repo root
-    subPath: "tests/dags"
+    subPath: ""
     # if your repo needs a user name password
     # you can load them to a k8s secret like the one below
     #   ---
@@ -1874,7 +1884,7 @@ dags:
     # interval between git sync attempts in seconds
     # high values are more likely to cause DAGs to become out of sync between different components
     # low values cause more traffic to the remote git repository
-    wait: 5
+    wait: 20
     containerName: git-sync
     uid: 65533
 
