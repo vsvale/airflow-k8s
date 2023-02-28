@@ -1704,7 +1704,7 @@ cleanup:
 postgresql:
   enabled: true
   image:
-    tag: "11"
+    tag: "10"
   auth:
     enablePostgresUser: true
     postgresPassword: postgres
