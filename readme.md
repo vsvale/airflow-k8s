@@ -52,6 +52,8 @@
     - watch kubectl get all -n cicd
     - App of Apps: kubectl apply -f https://raw.githubusercontent.com/vsvale/airflow-k8s/main/repository/repository.yaml
     - http://127.0.0.1:8081/argocd/login
+    - user: admin
+    - password: kubectl -n cicd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d  | more
 
 ### Install Airflow
 
