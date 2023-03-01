@@ -49,16 +49,16 @@ airflowHome: /opt/airflow
 defaultAirflowRepository: apache/airflow
 
 # Default airflow tag to deploy
-defaultAirflowTag: "2.5.1"
+defaultAirflowTag: "2.4.1"
 
 # Airflow version (Used to make some decisions based on Airflow Version being deployed)
-airflowVersion: "2.5.1"
+airflowVersion: "2.4.1"
 
 # Images
 images:
   airflow:
-    repository: vsvale/airflow
-    tag: 2.5.1
+    repository: vsvale/vsvale-airflow-example
+    tag: 2.4.1
     pullPolicy: Always
   # To avoid images with user code, you can turn this to 'true' and
   # all the 'run-airflow-migrations' and 'wait-for-airflow-migrations' containers/jobs
@@ -68,10 +68,6 @@ images:
   # timeout (in seconds) for airflow-migrations to complete
   migrationsWaitTimeout: 60
   pod_template:
-    # Note that `images.pod_template.repository` and `images.pod_template.tag` parameters
-    # can be overridden in `config.kubernetes` section. So for these parameters to have effect
-    # `config.kubernetes.worker_container_repository` and `config.kubernetes.worker_container_tag`
-    # must be not set .
     repository: ~
     tag: ~
     pullPolicy: IfNotPresent
@@ -85,7 +81,7 @@ images:
     pullPolicy: IfNotPresent
   redis:
     repository: redis
-    tag: 7-bullseye
+    tag: 6-bullseye
     pullPolicy: IfNotPresent
   pgbouncer:
     repository: apache/airflow
@@ -97,7 +93,7 @@ images:
     pullPolicy: IfNotPresent
   gitSync:
     repository: k8s.gcr.io/git-sync/git-sync
-    tag: v3.6.3
+    tag: v3.4.0
     pullPolicy: IfNotPresent
 
 # Select certain nodes for airflow pods.
@@ -246,12 +242,6 @@ allowPodLaunching: true
 env: []
 # - name: ""
 #   value: ""
-
-# Volumes for all airflow containers
-volumes: []
-
-# VolumeMounts for all airflow containers
-volumeMounts: []
 
 # Secrets for all airflow containers
 secret: []
@@ -553,12 +543,6 @@ workers:
     #   memory: 128Mi
 
   resources: {}
-  #  limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  #  requests:
-  #   cpu: 100m
-  #   memory: 128Mi
 
   # Grace period for tasks to finish after SIGTERM is sent from kubernetes
   terminationGracePeriodSeconds: 600
@@ -581,16 +565,15 @@ workers:
   # Select certain nodes for airflow worker pods.
   nodeSelector: {}
   priorityClassName: ~
-  affinity: {}
-  # default worker affinity is:
-  #  podAntiAffinity:
-  #    preferredDuringSchedulingIgnoredDuringExecution:
-  #    - podAffinityTerm:
-  #        labelSelector:
-  #          matchLabels:
-  #            component: worker
-  #        topologyKey: kubernetes.io/hostname
-  #      weight: 100
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                component: worker
+            topologyKey: "kubernetes.io/hostname"
   tolerations: []
   topologySpreadConstraints: []
   # hostAliases to use in worker pods.
@@ -604,17 +587,12 @@ workers:
   #   hostnames:
   #   - "test.hostname.two"
 
-  # annotations for the worker resource
-  annotations: {}
-
   podAnnotations: {}
 
   # Labels specific to workers objects and pods
   labels: {}
 
   logGroomerSidecar:
-    # Whether to deploy the Airflow worker log groomer sidecar.
-    enabled: true
     # Command to use when running the Airflow worker log groomer sidecar (templated).
     command: ~
     # Args to use when running the Airflow worker log groomer sidecar (templated).
@@ -640,7 +618,7 @@ scheduler:
   # scheduler and let Kubernetes restart it
   livenessProbe:
     initialDelaySeconds: 10
-    timeoutSeconds: 20
+    timeoutSeconds: 10
     failureThreshold: 5
     periodSeconds: 60
     command: ~
@@ -710,23 +688,19 @@ scheduler:
 
   # Select certain nodes for airflow scheduler pods.
   nodeSelector: {}
-  affinity: {}
-  # default scheduler affinity is:
-  #  podAntiAffinity:
-  #    preferredDuringSchedulingIgnoredDuringExecution:
-  #    - podAffinityTerm:
-  #        labelSelector:
-  #          matchLabels:
-  #            component: scheduler
-  #        topologyKey: kubernetes.io/hostname
-  #      weight: 100
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                component: scheduler
+            topologyKey: "kubernetes.io/hostname"
   tolerations: []
   topologySpreadConstraints: []
 
   priorityClassName: ~
-
-  # annotations for scheduler deployment
-  annotations: {}
 
   podAnnotations: {}
 
@@ -822,8 +796,6 @@ createUserJob:
   # In case you need to disable the helm hooks that create the jobs after install.
   # Disable this if you are using ArgoCD for example
   useHelmHooks: false
-  applyCustomEnv: false
-
   env: []
 
   resources: {}
@@ -851,8 +823,7 @@ migrateDatabaseJob:
   # Annotations on the database migration pod
   annotations: {}
   # jobAnnotations are annotations on the database migration job
-  jobAnnotations:
-        "argocd.argoproj.io/hook": Sync
+  jobAnnotations: {}
 
   # When not set, the values defined in the global securityContext will be used
   securityContext: {}
@@ -893,7 +864,6 @@ migrateDatabaseJob:
   # In case you need to disable the helm hooks that create the jobs after install.
   # Disable this if you are using ArgoCD for example
   useHelmHooks: false
-  applyCustomEnv: false
 
 # Airflow webserver settings
 webserver:
@@ -961,12 +931,6 @@ webserver:
         - port: "{{ .Values.ports.airflowUI }}"
 
   resources: {}
-  #   limits:
-  #     cpu: 100m
-  #     memory: 128Mi
-  #   requests:
-  #     cpu: 100m
-  #     memory: 128Mi
 
   # Create initial user.
   defaultUser:
@@ -987,10 +951,8 @@ webserver:
   extraVolumes: []
   extraVolumeMounts: []
 
-  # This string (can be templated) will be mounted into the Airflow Webserver
-  # as a custom webserver_config.py. You can bake a webserver_config.py in to
-  # your image instead or specify a configmap containing the
-  # webserver_config.py.
+  # This string (can be templated) will be mounted into the Airflow Webserver as a custom
+  # webserver_config.py. You can bake a webserver_config.py in to your image instead.
   webserverConfig: ~
   # webserverConfig: |
   #   from airflow import configuration as conf
@@ -1000,7 +962,6 @@ webserver:
 
   #   # Flask-WTF flag for CSRF
   #   CSRF_ENABLED = True
-  webserverConfigConfigMapName: ~
 
   service:
     type: ClusterIP
@@ -1041,9 +1002,6 @@ webserver:
   tolerations: []
   topologySpreadConstraints: []
 
-  # annotations for webserver deployment
-  annotations: {}
-
   podAnnotations: {}
 
   # Labels specific webserver app
@@ -1079,7 +1037,7 @@ triggerer:
   # triggerer and let Kubernetes restart it
   livenessProbe:
     initialDelaySeconds: 10
-    timeoutSeconds: 20
+    timeoutSeconds: 10
     failureThreshold: 5
     periodSeconds: 60
     command: ~
@@ -1127,23 +1085,19 @@ triggerer:
 
   # Select certain nodes for airflow triggerer pods.
   nodeSelector: {}
-  affinity: {}
-  # default triggerer affinity is:
-  #  podAntiAffinity:
-  #    preferredDuringSchedulingIgnoredDuringExecution:
-  #    - podAffinityTerm:
-  #        labelSelector:
-  #          matchLabels:
-  #            component: triggerer
-  #        topologyKey: kubernetes.io/hostname
-  #      weight: 100
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                component: triggerer
+            topologyKey: "kubernetes.io/hostname"
   tolerations: []
   topologySpreadConstraints: []
 
   priorityClassName: ~
-
-  # annotations for the triggerer deployment
-  annotations: {}
 
   podAnnotations: {}
 
@@ -1242,9 +1196,6 @@ dagProcessor:
   topologySpreadConstraints: []
 
   priorityClassName: ~
-
-  # annotations for the dag processor deployment
-  annotations: {}
 
   podAnnotations: {}
 
@@ -1348,9 +1299,6 @@ flower:
 
   priorityClassName: ~
 
-  # annotations for the flower deployment
-  annotations: {}
-
   podAnnotations: {}
 
   # Labels specific to flower objects and pods
@@ -1362,9 +1310,6 @@ statsd:
   enabled: true
   # Max number of old replicasets to retain
   revisionHistoryLimit: ~
-
-  # Arguments for StatsD exporter command.
-  args: ["--statsd.mapping-config=/etc/statsd-exporter/mappings.yml"]
 
   # Create ServiceAccount
   serviceAccount:
@@ -1421,8 +1366,6 @@ statsd:
 pgbouncer:
   # Enable PgBouncer
   enabled: false
-  # Number of PgBouncer replicas to run in Deployment
-  replicas: 1
   # Max number of old replicasets to retain
   revisionHistoryLimit: ~
   # Command to use for PgBouncer(templated).
@@ -1431,9 +1374,6 @@ pgbouncer:
   args: ~
   auth_type: md5
   auth_file: /etc/pgbouncer/users.txt
-
-  # annotations to be added to the PgBouncer deployment
-  annotations: {}
 
   # Create ServiceAccount
   serviceAccount:
@@ -1703,13 +1643,8 @@ cleanup:
 # Not recommended for production
 postgresql:
   enabled: true
-  image:
-    tag: "10"
-  auth:
-    enablePostgresUser: true
-    postgresPassword: postgres
-    username: ~
-    password: ~
+  postgresqlPassword: postgres
+  postgresqlUsername: postgres
 
 # Config settings to go into the mounted airflow.cfg
 #
@@ -1730,6 +1665,7 @@ config:
     # For Airflow 1.10, backward compatibility; moved to [logging] in 2.0
     colored_console_log: 'False'
     remote_logging: '{{- ternary "True" "False" .Values.elasticsearch.enabled }}'
+    enable_xcom_pickling: 'True'
   logging:
     remote_logging: '{{- ternary "True" "False" .Values.elasticsearch.enabled }}'
     colored_console_log: 'False'
@@ -1836,9 +1772,10 @@ dags:
     enabled: true
 
     # git repo clone url
-    # ssh example: git@github.com:apache/airflow.git
+    # ssh examples ssh://git@github.com/apache/airflow.git
+    # git@github.com:apache/airflow.git
     # https example: https://github.com/apache/airflow.git
-    repo: https://github.com/vsvale/airflow-k8s.git
+    repo: https://github.com/vsvale/k8s_example.git
     branch: main
     rev: HEAD
     depth: 1
@@ -1881,11 +1818,8 @@ dags:
     # knownHosts: |
     #    <host1>,<ip1> <key1>
     #    <host2>,<ip2> <key2>
-
     # interval between git sync attempts in seconds
-    # high values are more likely to cause DAGs to become out of sync between different components
-    # low values cause more traffic to the remote git repository
-    wait: 20
+    wait: 60
     containerName: git-sync
     uid: 65533
 

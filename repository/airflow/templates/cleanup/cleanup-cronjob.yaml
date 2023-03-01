@@ -101,7 +101,10 @@ spec:
               {{- include "standard_airflow_environment" . | indent 12 }}
               {{- include "container_extra_envs" (list . .Values.cleanup.env) | indent 12 }}
               volumeMounts:
-{{- include "airflow_config_mount" . | nindent 16 }}
+                - name: config
+                  mountPath: {{ template "airflow_config_path" . }}
+                  subPath: airflow.cfg
+                  readOnly: true
               resources:
 {{ toYaml .Values.cleanup.resources | indent 16 }}
           volumes:
