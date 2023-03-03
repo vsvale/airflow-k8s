@@ -56,7 +56,7 @@
     - password: kubectl -n cicd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d  | more
 
 ### Install Airflow
-    - helm upgrade --install -f https://raw.githubusercontent.com/vsvale/airflow-k8s/main/repository/airflow/values.yaml airflow apache-airflow/airflow --namespace orchestrator --create-namespace --debug --timeout 20m0s
+    - helm upgrade --install -f repository/airflow/values.yaml airflow apache-airflow/airflow --namespace orchestrator --create-namespace --timeout 20m0s --version 1.7.0
         - Utilizando images.airflow.repository:  vsvale/airflow:2.5.1 para utilizar umaimagem do airflow com os seguintes [requirements](https://raw.githubusercontent.com/vsvale/airflow-k8s/main/repository/image/airflow/requirements.txt)
         - Utilizando dags.gitSync.repo: https://github.com/vsvale/airflow-k8s.git para buscar as dags no git na pasta dags desse repositório
 
