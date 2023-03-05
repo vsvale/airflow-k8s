@@ -50,17 +50,52 @@
 ### Install Argocd
     - helm upgrade --install -f https://raw.githubusercontent.com/vsvale/airflow-k8s/main/repository/argo-cd/values.yaml argocd argo/argo-cd --namespace cicd --debug --timeout 10m0s
     - watch kubectl get all -n cicd
-    - App of Apps: kubectl apply -f https://raw.githubusercontent.com/vsvale/airflow-k8s/main/repository/repository.yaml
+
+### Install Stack
+    - kubectl apply -f https://raw.githubusercontent.com/vsvale/airflow-k8s/main/repository/repository.yaml
+
+### Login ArgoCD
     - http://127.0.0.1:8081/argocd/login
     - user: admin
     - password: kubectl -n cicd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d  | more
 
-### Install Airflow
-    - helm upgrade --install -f repository/airflow/values.yaml airflow apache-airflow/airflow --namespace orchestrator --create-namespace --timeout 20m0s --version 1.7.0
-        - Utilizando images.airflow.repository:  vsvale/airflow:2.5.1 para utilizar umaimagem do airflow com os seguintes [requirements](https://raw.githubusercontent.com/vsvale/airflow-k8s/main/repository/image/airflow/requirements.txt)
-        - Utilizando dags.gitSync.repo: https://github.com/vsvale/airflow-k8s.git para buscar as dags no git na pasta dags desse repositório
+### Configure Minio
+    - 172.20.0.2:9089
+    - JWT: kubectl get secret console-sa-secret -o jsonpath="{.data.token}" -n deepstorage| base64 --decode
+    - create tenant: 
+        - Name: airflows3
+        - Namespace: deepstorage
+        - Sorage Class: local-path
+        - Number of Servers: 2
+        - Drivers per Server: 2
+        - Total Size: 25 Gi
+        - CPU Request: 3
+        - Memory Request: 4Gi
+        - TLS: OFF
+    - Download Tenant credentials
+    - 172.20.0.2:9090
+    - use credentials to login
+    - create lakehouse bucket
+    - create access key:
+        - access key: minio
+        - secret key: miniok8sairflow
+    - create user:
+        - user name: minio_user
+        - password: miniok8sairflow
 
 
-### Install Spark
+### Configure Airflow
+    - 172.20.0.2:8787
+    - user: admin
+    - password: admin
+    - criar conexões:
+        - Kubernetes:
+            - Connection Id: kubeconnect
+            - Connection Type: Kubernetes Cluster Connection
+            - In cluster configuration: true
+        - MiniO:
+            - Connection Id: minio
+            - Connection Type: Amazon Web Services
+            - Extra: {"aws_access_key_id": "minio", "aws_secret_access_key": "miniok8sairflow", "endpoint_url": "http://172.20.0.2:8686"}
 
-### Install MiniO
+
