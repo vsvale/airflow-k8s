@@ -46,10 +46,10 @@ securityContext: {}
 airflowHome: /opt/airflow
 
 # Default airflow repository -- overridden by all the specific images below
-defaultAirflowRepository: apache/airflow
+defaultAirflowRepository: vsvale/airflow
 
 # Default airflow tag to deploy
-defaultAirflowTag: "2.4.1"
+defaultAirflowTag: latest
 
 # Airflow version (Used to make some decisions based on Airflow Version being deployed)
 airflowVersion: "2.4.1"
@@ -1672,7 +1672,10 @@ postgresql:
 # Do not set config containing secrets via plain text values, use Env Var or k8s secret object
 # yamllint disable rule:line-length
 config:
+  webserver:
+    expose_config: 'True'
   core:
+    parallelism: 16
     dags_folder: '{{ include "airflow_dags" . }}'
     # This is ignored when used with the official Docker image
     load_examples: 'False'
@@ -1772,7 +1775,7 @@ podTemplate: ~
 dags:
   persistence:
     # Enable persistent volume for storing dags
-    enabled: false
+    enabled: true
     # Volume size for dags
     size: 1Gi
     # If using a custom storageClass, pass name here
@@ -1856,9 +1859,9 @@ dags:
 logs:
   persistence:
     # Enable persistent volume for storing logs
-    enabled: false
+    enabled: true
     # Volume size for logs
-    size: 100Gi
+    size: 1Gi
     # If using a custom storageClass, pass name here
     storageClassName:
     ## the name of an existing PVC to use
