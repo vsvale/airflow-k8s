@@ -32,14 +32,14 @@ kubeVersionOverride: ""
 revisionHistoryLimit: ~
 
 # User and group of airflow user
-uid: 50000
+uid: 0
 gid: 0
 
 # Default security context for airflow
-securityContext: {}
-#  runAsUser: 50000
-#  fsGroup: 0
-#  runAsGroup: 0
+securityContext: 
+ runAsUser: 0
+  fsGroup: 0
+  runAsGroup: 0
 
 # Airflow home directory
 # Used for mount paths
@@ -1837,7 +1837,7 @@ dags:
     #    <host1>,<ip1> <key1>
     #    <host2>,<ip2> <key2>
     # interval between git sync attempts in seconds
-    wait: 60
+    wait: 30
     containerName: git-sync
     uid: 65533
 
