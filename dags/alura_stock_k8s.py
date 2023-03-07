@@ -24,8 +24,7 @@ TICKERS = ['AAPL','MSFT','GOOG','TSLA']
 
 @dag(schedule='@daily', default_args=default_args,catchup=False,
 tags=['alura','stock','yfinance','s3','k8s'],description=description)
-
-def stock():
+def alura_stock_k8s():
     
     def get_history(ticker, ds=None, ds_nodash=None):
         df = yfinance.Ticker(ticker).history(
