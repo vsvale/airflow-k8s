@@ -26,7 +26,18 @@ TICKERS = ['AAPL','MSFT','GOOG','TSLA']
 tags=['alura','stock','yfinance','s3','k8s'],description=description)
 def alura_stock_k8s():
     @task()
-    def print_test():
-        print('test')
-    print_test()
+    def get_history(ticker, ds=None, ds_nodash=None):
+        df = yfinance.Ticker(ticker).history(
+        period="1d", 
+        interval="1h",
+        start=ds_add(ds, -1),
+        end=ds,
+        prepost=True,
+        )
+        print(df)
+    @task()
+    def get_crypto_dag():
+        for ticker in TICKERS:
+            get_history.override(task_id=ticker)(ticker)
+    get_crypto_dag()
 dag = alura_stock_k8s()
