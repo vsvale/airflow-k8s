@@ -34,6 +34,6 @@ def alura_stock_k8s():
             end=days_ago(0),
             prepost=True,
             )
-        print(df)
+            print(df)
     get_crypto_dag()
 dag = alura_stock_k8s()
