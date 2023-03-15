@@ -25,7 +25,7 @@ tags=['alura','stock','yfinance','s3','k8s'],description=description)
 def alura_stock_k8s():
 
     @task()
-    def get_crypto_dag():
+    def get_crypto_values(ticker):
         for ticker in TICKERS:
             df = yfinance.Ticker(ticker).history(
             period="1d", 
@@ -34,6 +34,7 @@ def alura_stock_k8s():
             end=days_ago(0),
             prepost=True,
             )
-            print(df)
-    get_crypto_dag()
+            print(df.to_string(index=False,header=True))
+    
+
 dag = alura_stock_k8s()

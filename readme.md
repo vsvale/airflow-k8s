@@ -60,7 +60,7 @@
     - password: kubectl -n cicd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d  | more
 
 ### Configure Minio
-    - 172.20.0.2:9089
+    - 172.18.0.2:9089
     - JWT: kubectl get secret console-sa-secret -o jsonpath="{.data.token}" -n deepstorage| base64 --decode
     - create tenant: 
         - Name: airflows3
@@ -73,7 +73,7 @@
         - Memory Request: 4Gi
         - TLS: OFF
     - Download Tenant credentials
-    - 172.20.0.2:9090
+    - 172.18.0.2:9090
     - use credentials to login
     - create lakehouse bucket
     - create access key:
@@ -85,7 +85,7 @@
 
 
 ### Configure Airflow
-    - 172.20.0.2:8787
+    - 172.18.0.2:8787
     - user: admin
     - password: admin
     - criar conexões:
@@ -96,6 +96,6 @@
         - MiniO:
             - Connection Id: minio
             - Connection Type: Amazon Web Services
-            - Extra: {"aws_access_key_id": "minio", "aws_secret_access_key": "miniok8sairflow", "endpoint_url": "http://172.20.0.2:8686"}
+            - Extra: {"aws_access_key_id": "minio", "aws_secret_access_key": "miniok8sairflow", "endpoint_url": "http://172.18.0.2:8686"}
 
 
