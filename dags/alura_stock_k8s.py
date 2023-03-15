@@ -3,6 +3,7 @@ from datetime import  timedelta
 from airflow.decorators import dag, task_group, task
 from airflow.utils.dates import days_ago
 from airflow.macros import ds_add
+from astro import sql as aql
 
 
 default_args = {
@@ -25,15 +26,22 @@ tags=['alura','stock','yfinance','s3','k8s'],description=description)
 def alura_stock_k8s():
 
     @task()
-    def get_crypto_dag():
-        for ticker in TICKERS:
-            df = yfinance.Ticker(ticker).history(
+    def get_crypto_values(ticker):
+        df = yfinance.Ticker(ticker).history(
             period="1d", 
             interval="1h",
             start=days_ago(1),
             end=days_ago(0),
             prepost=True,
             )
-            print(df)
-    get_crypto_dag()
+        return df
+
+    @task 
+    def print_df(df):
+        print(df)
+    
+    crypto_values = get_crypto_values.expand(TICKERS)
+    print_df(crypto_values)
+
+
 dag = alura_stock_k8s()
