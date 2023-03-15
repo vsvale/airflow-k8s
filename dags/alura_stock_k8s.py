@@ -19,7 +19,7 @@ default_args = {
 
 description = "DAG to get stock data"
 
-TICKERS = ['AAPL','MSFT','GOOG','TSLA']
+
 
 @dag(schedule='@daily', default_args=default_args,catchup=False,
 tags=['alura','stock','yfinance','s3','k8s'],description=description)
@@ -40,7 +40,7 @@ def alura_stock_k8s():
     def print_df(df):
         print(df)
     
-    crypto_values = get_crypto_values.expand(TICKERS)
+    crypto_values = get_crypto_values.expand(ticker = ['AAPL','MSFT','GOOG','TSLA'])
     print_df(crypto_values)
 
 
