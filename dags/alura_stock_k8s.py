@@ -15,7 +15,8 @@ default_args = {
     'email_on_retry': False,
     'retries': 0,
     'retry_delay': timedelta(minutes=5),
-    'max_active_run': 1}
+    'max_active_run': 1,
+    'depends_on_past':False}
 
 description = "DAG to get stock data"
 
@@ -36,10 +37,31 @@ def alura_stock_k8s():
             end=days_ago(0),
             prepost=True,
             )
-        print(df)
+        return df
+
+    
+
+        aql.export_file(
+        task_id="save_dataframe_to_gcs",
+        input_data=t2,
+        output_file=File(
+            path=f"{gcs_bucket}/{{{{ task_instance_key_str }}}}/top_5_movies.csv",
+            conn_id="gcp_conn",
+        ),
+        if_exists="replace",
+    )
+
 
 
     for ticker in TICKERS:
-        get_crypto_values(ticker)
+        load_to_S3 = aql.export_file(
+        task_id=f"t_load_df_to_s3_{ticker}",
+        input_data=get_crypto_values(ticker),
+        output_file=File(
+            path=f"s3://lakehouse/stocks/{ticker}/{ticker}.csv",
+            conn_id="minio",
+        ),
+        if_exists="replace"
+    )
 
 dag = alura_stock_k8s()
