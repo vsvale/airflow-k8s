@@ -19,44 +19,27 @@ default_args = {
 
 description = "DAG to get stock data"
 
+TICKERS = ['AAPL','MSFT','GOOG','TSLA']
 
 
 @dag(schedule='@daily', default_args=default_args,catchup=False,
 tags=['alura','stock','yfinance','s3','k8s'],description=description)
 def alura_stock_k8s():
-#
-#    @task()
-#    def select_ticker():
-#        return ['AAPL','MSFT','GOOG','TSLA']
-#
-#    @task()
-#    def get_crypto_values(ticker):
-#        print(ticker)
-#
-#
-#    get_crypto_values.expand(ticker = select_ticker())
-#
 
-#        df = yfinance.Ticker(ticker).history(
-#            period="1d", 
-#            interval="1h",
-#            start=days_ago(1),
-#            end=days_ago(0),
-#            prepost=True,
-#            )
-#        print(df)
 
-    @task
-    def add_one(x: int):
-        return x + 1
+    @task()
+    def get_crypto_values(ticker):
+        df = yfinance.Ticker(ticker).history(
+            period="1d", 
+            interval="1h",
+            start=days_ago(1),
+            end=days_ago(0),
+            prepost=True,
+            )
+        print(df)
 
-    @task
-    def sum_it(values):
-        total = sum(values)
-        print(f"Total was {total}")
 
-    added_values = add_one.expand(x=[1, 2, 3])
-    sum_it(added_values)
-
+    for ticker in TICKERS:
+        get_crypto_values(ticker)
 
 dag = alura_stock_k8s()
