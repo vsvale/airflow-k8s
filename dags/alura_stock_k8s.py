@@ -31,17 +31,15 @@ def alura_stock_k8s():
 
     @task()
     def get_crypto_values(ticker: str):
-        df = yfinance.Ticker(ticker).history(
-            period="1d", 
-            interval="1h",
-            start=days_ago(1),
-            end=days_ago(0),
-            prepost=True,
-            )
-        print(df)
+        return ticker
 
-    crypto_values = get_crypto_values.partial().expand(ticker = select_ticker())
-    print_df(crypto_values)
+    @task()
+    def consumer(arg):
+        print(list(arg))
+
+
+    crypto_values = get_crypto_values.expand(ticker = select_ticker())
+    consumer(crypto_values)
 
 
 dag = alura_stock_k8s()
