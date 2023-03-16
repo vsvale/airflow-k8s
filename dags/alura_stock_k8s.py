@@ -13,7 +13,7 @@ default_args = {
     'email': ['viniciusdvale@gmail.com'],
     'email_on_failure': False,
     'email_on_retry': False,
-    'retries': 1,
+    'retries': 0,
     'retry_delay': timedelta(minutes=5),
     'max_active_run': 1}
 
@@ -31,15 +31,11 @@ def alura_stock_k8s():
 
     @task()
     def get_crypto_values(ticker):
-        return ticker
-
-    @task()
-    def consumer(arg):
-        print(list(arg))
+        print(ticker)
 
 
-    crypto_values = get_crypto_values.expand(ticker = select_ticker())
-    consumer(arg = crypto_values)
+    get_crypto_values.expand(ticker = select_ticker())
+
 
 
 dag = alura_stock_k8s()
