@@ -39,7 +39,7 @@ def alura_stock_k8s():
 
 
     crypto_values = get_crypto_values.expand(ticker = select_ticker())
-    consumer(crypto_values)
+    consumer(arg = crypto_values)
 
 
 dag = alura_stock_k8s()
