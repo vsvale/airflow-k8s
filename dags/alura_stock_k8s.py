@@ -30,7 +30,7 @@ def alura_stock_k8s():
         return ['AAPL','MSFT','GOOG','TSLA']
 
     @task()
-    def get_crypto_values(ticker: str):
+    def get_crypto_values(ticker):
         return ticker
 
     @task()
