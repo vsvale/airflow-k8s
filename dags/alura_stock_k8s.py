@@ -38,12 +38,8 @@ def alura_stock_k8s():
             end=days_ago(0),
             prepost=True,
             )
-        return df
-
-    @task 
-    def print_df(df):
         print(df)
-    
+
     crypto_values = get_crypto_values.partial().expand(ticker = select_ticker())
     print_df(crypto_values)
 
