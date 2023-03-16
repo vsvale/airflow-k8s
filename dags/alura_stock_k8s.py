@@ -26,7 +26,11 @@ tags=['alura','stock','yfinance','s3','k8s'],description=description)
 def alura_stock_k8s():
 
     @task()
-    def get_crypto_values(ticker):
+    def select_ticker():
+        return ['AAPL','MSFT','GOOG','TSLA']
+
+    @task()
+    def get_crypto_values(ticker: str):
         df = yfinance.Ticker(ticker).history(
             period="1d", 
             interval="1h",
@@ -40,7 +44,7 @@ def alura_stock_k8s():
     def print_df(df):
         print(df)
     
-    crypto_values = get_crypto_values.expand(ticker = ['AAPL','MSFT','GOOG','TSLA'])
+    crypto_values = get_crypto_values.partial().expand(ticker = select_ticker())
     print_df(crypto_values)
 
 
