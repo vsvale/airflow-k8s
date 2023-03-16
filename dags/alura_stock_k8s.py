@@ -4,7 +4,7 @@ from airflow.decorators import dag, task_group, task
 from airflow.utils.dates import days_ago
 from airflow.macros import ds_add
 from astro import sql as aql
-
+from astro.files import File
 
 default_args = {
     'owner': 'vinicius da silva vale',
@@ -40,19 +40,6 @@ def alura_stock_k8s():
         return df
 
     
-
-        aql.export_file(
-        task_id="save_dataframe_to_gcs",
-        input_data=t2,
-        output_file=File(
-            path=f"{gcs_bucket}/{{{{ task_instance_key_str }}}}/top_5_movies.csv",
-            conn_id="gcp_conn",
-        ),
-        if_exists="replace",
-    )
-
-
-
     for ticker in TICKERS:
         load_to_S3 = aql.export_file(
         task_id=f"t_load_df_to_s3_{ticker}",
