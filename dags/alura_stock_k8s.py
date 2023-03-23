@@ -15,7 +15,6 @@ default_args = {
     'email_on_retry': False,
     'retries': 0,
     'retry_delay': timedelta(minutes=5),
-    'max_active_run': 1,
     'depends_on_past':False}
 
 description = "DAG to get stock data"
@@ -29,7 +28,7 @@ def alura_stock_k8s():
 
 
     @task()
-    def get_crypto_values(ticker):
+    def get_api_values(ticker):
         df = yfinance.Ticker(ticker).history(
             period="1d", 
             interval="1h",
@@ -38,17 +37,20 @@ def alura_stock_k8s():
             prepost=True,
             )
         return df
-
     
-    for ticker in TICKERS:
-        load_to_S3 = aql.export_file(
-        task_id=f"t_load_df_to_s3_{ticker}",
-        input_data=get_crypto_values(ticker),
-        output_file=File(
-            path=f"s3://lakehouse/stocks/{ticker}/{ticker}.csv",
-            conn_id="minio",
-        ),
-        if_exists="replace"
-    )
-
+    # @task()
+    # def df_crypto():
+    #     for ticker in TICKERS:
+    #        = get_api_values(ticker)
+    
+    #     load_to_S3 = aql.export_file(
+    #     task_id=f"t_load_df_to_s3_{ticker}",
+    #     input_data=get_crypto_values(ticker),
+    #     output_file=File(
+    #         path=f"s3://lakehouse/stocks/{ticker}/{ticker}.csv",
+    #         conn_id="minio",
+    #     ),
+    #     if_exists="replace"
+    # )
+    values = get_api_values.expand(TICKERS)
 dag = alura_stock_k8s()
