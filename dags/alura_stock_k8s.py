@@ -26,7 +26,6 @@ TICKERS = ['AAPL','MSFT','GOOG','TSLA']
 tags=['alura','stock','yfinance','s3','k8s'],description=description)
 def alura_stock_k8s():
 
-
     @task()
     def get_api_values(ticker: str):
         df = yfinance.Ticker(ticker).history(
@@ -38,19 +37,22 @@ def alura_stock_k8s():
             )
         return df
     
-    # @task()
-    # def df_crypto():
-    #     for ticker in TICKERS:
-    #        = get_api_values(ticker)
+    @task()
+    def df_crypto(ticker):
+        return {"name": ticker, "df": get_api_values(ticker)}
     
-    #     load_to_S3 = aql.export_file(
-    #     task_id=f"t_load_df_to_s3_{ticker}",
-    #     input_data=get_crypto_values(ticker),
+  
+    # load_to_S3 = aql.export_file.partial(
+    #     task_id=f"t_load_df_to_s3",
+    #     if_exists="replace",
     #     output_file=File(
     #         path=f"s3://lakehouse/stocks/{ticker}/{ticker}.csv",
     #         conn_id="minio",
     #     ),
-    #     if_exists="replace"
-    # )
-    values = get_api_values.expand(ticker = TICKERS)
+
+    # ).expand(input_data=df_crypto())
+
+    print(df_crypto.expand(TICKERS))
+
+
 dag = alura_stock_k8s()
