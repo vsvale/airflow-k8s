@@ -52,7 +52,7 @@ def alura_stock_k8s():
 
     # ).expand(input_data=df_crypto())
 
-    print(df_crypto.expand(TICKERS))
+    print(df_crypto.expand(ticker = ['AAPL','MSFT','GOOG','TSLA']))
 
 
 dag = alura_stock_k8s()
